@@ -1,4 +1,5 @@
 from usage_insights.models import Event
+from .aggregation_service import AggregationService
 
 class EventService:
     @staticmethod
@@ -23,5 +24,8 @@ class EventService:
             event.timestamp = validated_data['timestamp']
             event.save()
         
-        # Call aggregation and threshold logic here later
+        # Call aggregation
+        AggregationService.aggregate_event(event)
+        
+        # Threshold logic here later
         return event
