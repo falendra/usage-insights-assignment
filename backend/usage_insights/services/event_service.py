@@ -1,5 +1,6 @@
 from usage_insights.models import Event
 from .aggregation_service import AggregationService
+from .threshold_service import ThresholdService
 
 class EventService:
     @staticmethod
@@ -27,5 +28,7 @@ class EventService:
         # Call aggregation
         AggregationService.aggregate_event(event)
         
-        # Threshold logic here later
+        # Check thresholds
+        ThresholdService.check_thresholds(event)
+        
         return event
