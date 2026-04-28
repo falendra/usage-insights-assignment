@@ -1,0 +1,2 @@
+class AggregationService:
+    pass
