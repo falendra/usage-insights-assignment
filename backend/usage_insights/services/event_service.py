@@ -5,30 +5,21 @@ from .threshold_service import ThresholdService
 class EventService:
     @staticmethod
     def process_event(validated_data):
+        # Extract timestamp as it requires a separate save to override auto_now_add
+        timestamp = validated_data.pop('timestamp', None)
+        
         # Create Raw Event
-        event_kwargs = {
-            'account_id': validated_data['account_id'],
-            'user_id': validated_data['user_id'],
-            'event_type': validated_data['event_type'],
-            'feature_name': validated_data['feature_name'],
-        }
-        if 'team_id' in validated_data and validated_data['team_id'] is not None:
-            event_kwargs['team_id'] = validated_data['team_id']
-        if 'metadata' in validated_data:
-            event_kwargs['metadata'] = validated_data['metadata']
-
-        event = Event.objects.create(**event_kwargs)
+        event = Event.objects.create(**validated_data)
         
-        # Note: If timestamp is provided in the payload, we update it.
-        # Otherwise, the model's auto_now_add will set it to current time.
-        if 'timestamp' in validated_data:
-            event.timestamp = validated_data['timestamp']
-            event.save()
+        # If timestamp was explicitly provided in the payload, override it
+        if timestamp:
+            event.timestamp = timestamp
+            event.save(update_fields=['timestamp'])
         
-        # Call aggregation
+        # 1. Aggregate the event data
         AggregationService.aggregate_event(event)
         
-        # Check thresholds
+        # 2. Check and notify if thresholds are exceeded
         ThresholdService.check_thresholds(event)
         
         return event
