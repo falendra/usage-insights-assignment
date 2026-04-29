@@ -16,10 +16,10 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Assuming Django is running on port 8000
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/usage/?account_id=1');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await axios.get(`${apiUrl}/api/usage/?account_id=1`);
         
         // Clean up team__name for Recharts (handle null teams)
         const formattedTeamUsage = response.data.team_usage.map(item => ({
