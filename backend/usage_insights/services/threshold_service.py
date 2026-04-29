@@ -15,11 +15,11 @@ class ThresholdService:
         except Threshold.DoesNotExist:
             return
 
-        # Calculate the total usage for this account and feature
-        # (Summing across all teams and dates for simplicity, or we could scope by date)
+        # Calculate the total usage for this account and feature for the specific day
         usage = DailyUsageAggregate.objects.filter(
             account_id=event.account_id,
-            feature_name=event.feature_name
+            feature_name=event.feature_name,
+            date=event.timestamp.date()
         ).aggregate(total=Sum('total_events'))['total'] or 0
 
         if usage > threshold.limit:

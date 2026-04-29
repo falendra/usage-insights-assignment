@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Account(models.Model):
     name = models.CharField(max_length=255)
@@ -32,7 +33,7 @@ class Event(models.Model):
     event_type = models.CharField(max_length=100)
     feature_name = models.CharField(max_length=100)
     metadata = models.JSONField(default=dict, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     class Meta:
         indexes = [
