@@ -24,13 +24,16 @@ graph LR
 5. **Retrieval**: The React dashboard fetches the aggregated data via `GET /api/usage/`. The API performs `GROUP BY` operations strictly on the `DailyUsageAggregate` table, keeping dashboard load times consistently fast regardless of raw event volume.
 
 ## 3. API Design
-- `POST /api/events/`
+- `POST /api/events/` (Ingestion)
   - **Purpose**: Ingest raw usage events.
   - **Payload**: `{ account_id, user_id, team_id (optional), event_type, feature_name, metadata, timestamp }`
   - **Response**: `201 Created` on success. Validation errors return `400 Bad Request`.
-- `GET /api/usage/?account_id=<id>`
+- `GET /api/usage/?account_id=<id>` (Query)
   - **Purpose**: Retrieve usage insights for a given account.
   - **Response**: Returns a JSON object with three arrays: `daily_usage`, `feature_usage`, and `team_usage`, pre-formatted for direct charting in the frontend.
+- `GET /api/alerts/?account_id=<id>` (Alerts - *Conceptual for full scale*)
+  - **Purpose**: Retrieve historical and active threshold alerts for the user dashboard.
+  - **Note**: In this implementation slice, alerts are handled asynchronously via server logs rather than an exposed REST endpoint to keep the slice narrow, but a production system would expose this endpoint to drive an in-app notifications UI.
 
 ## 4. Data Model Explanation
 - **Core Entities (`Account`, `User`, `Team`)**: Represent the multi-tenant SaaS hierarchy.
