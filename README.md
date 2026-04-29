@@ -72,3 +72,18 @@ Ingests a raw usage event.
 
 ### `GET /api/usage/?account_id=1`
 Fetches pre-aggregated usage data for the dashboard charts. Returns Daily, Feature, and Team usage arrays dynamically derived from the `DailyUsageAggregate` table.
+
+### `POST /api/thresholds/`
+Create or update threshold limits.
+
+**Payload:**
+```json
+{
+  "account_id": 1,
+  "feature_name": "dashboard",
+  "limit": 100
+}
+```
+
+### `GET /api/thresholds/?account_id=1`
+Fetches the active threshold configurations for a given account. Returns a list of configured feature thresholds.

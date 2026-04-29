@@ -31,9 +31,12 @@ graph LR
 - `GET /api/usage/?account_id=<id>` (Query)
   - **Purpose**: Retrieve usage insights for a given account.
   - **Response**: Returns a JSON object with three arrays: `daily_usage`, `feature_usage`, and `team_usage`, pre-formatted for direct charting in the frontend.
-- `GET /api/alerts/?account_id=<id>` (Alerts - *Conceptual for full scale*)
-  - **Purpose**: Retrieve historical and active threshold alerts for the user dashboard.
-  - **Note**: In this implementation slice, alerts are handled asynchronously via server logs rather than an exposed REST endpoint to keep the slice narrow, but a production system would expose this endpoint to drive an in-app notifications UI.
+- `GET /api/thresholds/?account_id=<id>` (Thresholds)
+  - **Purpose**: Retrieve active threshold configurations for a given account.
+  - **Response**: List of configured feature thresholds.
+- `POST /api/thresholds/` (Thresholds)
+  - **Purpose**: Create or update threshold limits.
+  - **Payload**: `{ account_id, feature_name, limit }`
 
 ## 4. Data Model Explanation
 - **Core Entities (`Account`, `User`, `Team`)**: Represent the multi-tenant SaaS hierarchy.
@@ -50,7 +53,7 @@ graph LR
 
 ### Later Scale (High Volume)
 - **Asynchronous Ingestion**: Shift `POST /api/events/` to an event-driven model. The endpoint will publish payloads to a message broker (Kafka/RabbitMQ) and return `202 Accepted` immediately.
-- **Stream Processing**: Dedicated worker services (e.g., Celery or Flink) will consume the queue, batch write raw events, and periodically update the `DailyUsageAggregate` table to reduce write contention.
+- **Stream Processing & Alerts**: Dedicated worker services (e.g., Celery or Flink) will consume the queue, batch write raw events, periodically update the `DailyUsageAggregate` table to reduce write contention, and asynchronously process threshold alerts via webhooks or emails.
 - **Data Warehousing**: Move raw `Event` storage out of the primary transactional database and into a columnar datastore (like ClickHouse or Snowflake) or cold storage (S3) for advanced analytics.
 - **Caching**: Implement Redis caching for the `GET /api/usage/` endpoint to handle heavy read traffic from the dashboard.
 
